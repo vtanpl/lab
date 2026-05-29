@@ -5,3 +5,7 @@ pihole/etc-dnsmasq.d/*
 
 !pihole/etc-pihole/.gitkeep
 !pihole/etc-dnsmasq.d/.gitkeep
+
+.env
+postgres/
+redis/

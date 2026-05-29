@@ -1,0 +1,26 @@
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Enable nginx
+  systemd:
+    name: nginx
+    enabled: true
+    state: started
+
+- name: Copy nginx config for authentik
+  template:
+    src: auth.conf.j2
+    dest: /etc/nginx/sites-available/auth.conf
+
+- name: Enable site
+  file:
+    src: /etc/nginx/sites-available/auth.conf
+    dest: /etc/nginx/sites-enabled/auth.conf
+    state: link
+
+- name: Restart nginx
+  systemd:
+    name: nginx
+    state: restarted

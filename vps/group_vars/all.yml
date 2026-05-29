@@ -1,0 +1,8 @@
+domain: anomal.ink
+
+auth_domain: auth.anomal.ink
+dns_domain: dns.anomal.ink
+
+email: piotrignacycybersec@gmail.com
+
+authentik_dir: /opt/authentik
