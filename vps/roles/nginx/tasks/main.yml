@@ -31,6 +31,9 @@
     dest: /etc/nginx/sites-enabled/dns.conf
     state: link
 
+- name: Test nginx config
+  command: nginx -t
+
 - name: Restart nginx
   systemd:
     name: nginx
