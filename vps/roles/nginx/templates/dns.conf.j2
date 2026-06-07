@@ -1,0 +1,51 @@
+server {
+    listen 80;
+    server_name dns.anomal.ink;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name dns.anomal.ink;
+
+    ssl_certificate /etc/letsencrypt/live/dns.anomal.ink/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/dns.anomal.ink/privkey.pem;
+
+    # Authentik outpost endpoint
+    location /outpost.goauthentik.io {
+        proxy_pass http://127.0.0.1:9000/outpost.goauthentik.io;
+        proxy_set_header Host $host;
+        proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-URI $request_uri;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    # Authentik forward-auth check
+    location / {
+        auth_request /outpost.goauthentik.io/auth/nginx;
+
+        error_page 401 = @authentik_signin;
+
+        auth_request_set $authentik_username $upstream_http_x_authentik_username;
+        auth_request_set $authentik_email $upstream_http_x_authentik_email;
+        auth_request_set $authentik_name $upstream_http_x_authentik_name;
+
+        proxy_set_header X-authentik-username $authentik_username;
+        proxy_set_header X-authentik-email $authentik_email;
+        proxy_set_header X-authentik-name $authentik_name;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_pass http://127.0.0.1:8080;
+    }
+
+    location @authentik_signin {
+        internal;
+        return 302 https://auth.anomal.ink/outpost.goauthentik.io/start?rd=$scheme://$http_host$request_uri;
+    }
+}
