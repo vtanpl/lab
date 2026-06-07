@@ -3,6 +3,12 @@
     name: nginx
     state: present
 
+- name: Enable nginx
+  systemd:
+    name: nginx
+    enabled: true
+    state: started
+
 - name: Copy nginx config for authentik
   template:
     src: auth.conf.j2
@@ -27,12 +33,6 @@
 
 - name: Test nginx config
   command: nginx -t
-
-- name: Enable nginx
-  systemd:
-    name: nginx
-    enabled: true
-    state: started
 
 - name: Restart nginx
   systemd:
