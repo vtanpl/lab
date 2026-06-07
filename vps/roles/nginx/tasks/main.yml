@@ -20,6 +20,17 @@
     dest: /etc/nginx/sites-enabled/auth.conf
     state: link
 
+- name: Copy nginx config for DNS
+  template:
+    src: dns.conf.j2
+    dest: /etc/nginx/sites-available/dns.conf
+
+- name: Enable DNS site
+  file:
+    src: /etc/nginx/sites-available/dns.conf
+    dest: /etc/nginx/sites-enabled/dns.conf
+    state: link
+
 - name: Restart nginx
   systemd:
     name: nginx
